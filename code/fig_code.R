@@ -313,6 +313,8 @@ df_tidy_mean <- df_tidy %>%
 muscleFig<-ggplot(df_tidy_mean, aes(x=recTime, y=mean, color = sf_category)) +
   geom_line(aes(x=recTime, y=mean,color = sf_category)) +
   geom_ribbon(aes(ymin=CI_lower,ymax=CI_upper, fill=sf_category),color="grey70",alpha=0.4)+
+  scale_fill_manual(values = c("#3A53A4","#A3A3CE", "#A4A4A5"))+
+  scale_color_manual(values = c("#3A53A4","#A3A3CE", "#A4A4A5"))+
   theme_classic()  +
   facet_wrap(~ sf_category, nrow = 3)
 ########################### analyses/modeling
@@ -378,6 +380,8 @@ cutaneousFig<-df_tidy_mean %>% filter( sf_category == "control" & n == 45 | sf_c
   ggplot( aes(x=recTime, y=mean, color = sf_category)) +
   geom_line(aes(x=recTime, y=mean,color = sf_category)) +
   geom_ribbon(aes(ymin=CI_lower,ymax=CI_upper, fill=sf_category),color="grey70",alpha=0.4)+
+  scale_fill_manual(values = c("#3A53A4","#A3A3CE", "#A4A4A5"))+
+  scale_color_manual(values = c("#3A53A4","#A3A3CE", "#A4A4A5"))+
   theme_classic() +
   facet_wrap(~ sf_category, nrow = 3)
 ########################### analyses/modeling
