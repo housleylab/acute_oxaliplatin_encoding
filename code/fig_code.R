@@ -390,3 +390,53 @@ cutaneousFig<-df_tidy_mean %>% filter( sf_category == "control" & n == 45 | sf_c
 setwd("~/Dropbox-GaTech/CoS/BioSci/BioSci-Housley_Lab/04-papers/acute_ox/acute_oxaliplatin_encoding/")
 ggsave(cutaneousFig, file = "cutaneous_population_code_Fig_split.pdf", width = 18, height = 18, units = "cm", path = "figures")
 ########################### clean up
+
+
+########################### Figure 8 ###########################
+########################### description
+# behavior
+########################### load dependencies
+
+########################### custom functions
+########################### load data
+df <- read_excel("data/Copy of Acute ladder rung test.xlsx",
+                 na = "NA")
+########################### data wrangling
+df$treat<-as.factor(df$treat)
+df$rat<-as.factor(df$rat)
+df %>% 
+  group_by(treat) %>%
+  # filter(cutMusc == "cut") %>%  ### change from 'cut' to 'muscle'
+  # filter(spontType == 1 | spontType == 2) %>%
+  summarise(mean = mean(slips_total/n_steps, na.rm=T),
+            sd = sd(slips_total/n_steps, na.rm=T),
+            
+  ) 
+########################### quick visualization
+########################### analyses/modeling
+########################### saving data
+########################### saving figures
+df %>% 
+  ggplot(aes(x=treat, y=slips_per_step, colour = treat, fill=treat))+
+  geom_jitter(alpha=0.3, width = .2)+
+  geom_boxplot(alpha=0.8,outlier.shape = NA)+
+  scale_color_viridis_d(option = "viridis") +
+  scale_fill_viridis_d(option = "viridis") +
+  geom_boxplot(color = "black", fill = NA, fatten = 4, outlier.shape = NA)+
+  scale_fill_manual(values = c("#A4A4A5", "#3A53A4"))+
+  scale_color_manual(values = c("#A4A4A5", "#3A53A4"))+
+  # stat_compare_means(comparisons = my_comparisons,
+  #                    label.y = c(180, 200, 220, 60, 110))+ # Add pairwise comparisons p-value
+  
+  # stat_compare_means(method = "anova", label.y = 130)+
+  # stat_compare_means(label = "p.signif", method = "t.test",
+  #                    ref.group = "control")+
+  labs(title="acute effects on step accuracy",x="rat", y = "errors/step")+
+  stat_n_text(
+    y.pos = 0, #we can specify where in y axis the samle size should be denoted
+    color = "black", #choose any color
+    text.box = F, #draws a box outside the n
+    size = 3
+  )+
+  theme_classic()
+########################### clean up
