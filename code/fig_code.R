@@ -249,3 +249,75 @@ ggsave(fig_4i, file = "fig_4i.pdf", width = 15, height = 15, units = "cm", path 
 
 
 
+
+
+
+
+########################### Figure 7 muscle ###########################
+########################### description
+########################### load dependencies
+########################### custom functions
+sourceDirectory("code/functions/")
+########################### load data
+setwd("data/muscle_spike_times/")
+
+########################### data wrangling
+start.time <- Sys.time()
+
+filelist = list.files(pattern = ".*.txt")
+data = lapply(filelist, read.table, header = TRUE, sep = "\t") ## read in all files
+
+end.time <- Sys.time()
+time.taken <- end.time - start.time
+time.taken
+gc()
+# names(data) <- gsub("\\.txt$", "", fileNames)
+names(data) <- stringr::str_replace(filelist, pattern = ".txt", replacement = "")   ## rename the list elements to reflect the Neuron names
+
+lapply(seq_along(1:length(data)),function(x) names(data[[x]])<<-names(vars_rename(names(data[[x]]), ## rename the var list
+                                                                                  recTime = contains("Time"), 
+                                                                                  Spikes = starts_with("X1.")
+                                                                                  
+))) 
+
+# t(apply(simplify2array(data), 1:2, mean))
+# test<-lapply(data, function (x) x$Spikes)
+
+df_tidy<-bind_rows(data, .id = "source_df")
+
+
+df_tidy<-df_tidy %>%
+  dplyr::mutate(
+    sf_category = case_when(
+      str_detect(source_df, "_SF-") ~ "sf_neg",
+      str_detect(source_df, "_SF+") ~ "sf_pos",
+      str_detect(source_df, "cont") ~ "control",
+      TRUE ~ "noneDetected" # Default case if neither is found
+    )
+  )
+
+
+df_tidy_mean <- df_tidy %>%
+  filter(!is.na(recTime)) %>%
+  group_by(recTime,sf_category) %>%
+  summarise(n = n(),
+            mean = mean(Spikes),
+            median = median(Spikes),
+            sd = sd(Spikes)) %>%
+  mutate(sem = sd / sqrt(n - 1),
+         CI_lower = mean + qt((1-0.95)/2, n - 1) * sem,
+         CI_upper = mean - qt((1-0.95)/2, n - 1) * sem)
+########################### quick visualization
+
+
+muscleFig<-ggplot(df_tidy_mean, aes(x=recTime, y=mean, color = sf_category)) +
+  geom_line(aes(x=recTime, y=mean,color = sf_category)) +
+  geom_ribbon(aes(ymin=CI_lower,ymax=CI_upper, fill=sf_category),color="grey70",alpha=0.4)+
+  theme_classic()  +
+  facet_wrap(~ sf_category, nrow = 3)
+########################### analyses/modeling
+########################### saving data
+########################### saving figures
+setwd("~/Dropbox-GaTech/CoS/BioSci/BioSci-Housley_Lab/04-papers/acute_ox/acute_oxaliplatin_encoding/")
+ggsave(muscleFig, file = "muscle_population_code_Fig_split.pdf", width = 18, height = 18, units = "cm", path = "figures")
+########################### clean up

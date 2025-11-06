@@ -5,6 +5,7 @@ packagesS<-c("devtools",
              "ggplot2",
              "readxl",
              "crayon",
+             "cranlogs",
              "PerformanceAnalytics",
              "Hmisc",
              "tidyr",
@@ -44,7 +45,15 @@ packagesS<-c("devtools",
              "multcomp",
              "raster",
              "barcode",
-             "forcats"
+             "forcats",
+             "purrr",
+             "tidyselect",
+             "tidyverse",
+             "plotly",
+             "R.utils",
+             "rmatio",
+             "zoo"
+             
              
              
              
