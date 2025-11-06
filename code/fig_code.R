@@ -392,7 +392,7 @@ ggsave(cutaneousFig, file = "cutaneous_population_code_Fig_split.pdf", width = 1
 ########################### clean up
 
 
-########################### Figure 8 ###########################
+########################### Figure 8b ###########################
 ########################### description
 # behavior
 ########################### load dependencies
@@ -413,24 +413,13 @@ df %>%
             
   ) 
 ########################### quick visualization
-########################### analyses/modeling
-########################### saving data
-########################### saving figures
-df %>% 
+stepping_Fig<-df %>% 
   ggplot(aes(x=treat, y=slips_per_step, colour = treat, fill=treat))+
-  geom_jitter(alpha=0.3, width = .2)+
+  geom_jitter(alpha=1, width = .2)+
   geom_boxplot(alpha=0.8,outlier.shape = NA)+
-  scale_color_viridis_d(option = "viridis") +
-  scale_fill_viridis_d(option = "viridis") +
   geom_boxplot(color = "black", fill = NA, fatten = 4, outlier.shape = NA)+
   scale_fill_manual(values = c("#A4A4A5", "#3A53A4"))+
   scale_color_manual(values = c("#A4A4A5", "#3A53A4"))+
-  # stat_compare_means(comparisons = my_comparisons,
-  #                    label.y = c(180, 200, 220, 60, 110))+ # Add pairwise comparisons p-value
-  
-  # stat_compare_means(method = "anova", label.y = 130)+
-  # stat_compare_means(label = "p.signif", method = "t.test",
-  #                    ref.group = "control")+
   labs(title="acute effects on step accuracy",x="rat", y = "errors/step")+
   stat_n_text(
     y.pos = 0, #we can specify where in y axis the samle size should be denoted
@@ -439,4 +428,50 @@ df %>%
     size = 3
   )+
   theme_classic()
+########################### analyses/modeling
+########################### saving data
+########################### saving figures
+setwd("~/Dropbox-GaTech/CoS/BioSci/BioSci-Housley_Lab/04-papers/acute_ox/acute_oxaliplatin_encoding/")
+ggsave(stepping_Fig, file = "stepping_Fig.pdf", width = 8, height = 10, units = "cm", path = "figures")
+########################### clean up
+
+
+
+########################### Figure 8c ###########################
+########################### description
+# behavior
+########################### load dependencies
+
+########################### custom functions
+########################### load data
+df <- read_excel("data/temp_behavior.xlsx",
+                 na = "NA")
+########################### data wrangling
+df$`Cont/OX`<-as.factor(df$`Cont/OX`)
+df$temp<-as.factor(df$temp)
+df$file_name_date<-as.factor(df$file_name_date)
+df$fil_ID_number<-as.factor(df$fil_ID_number)
+########################### quick visualization
+temp_Fig<-df %>% 
+  ggplot(aes(x=`Cont/OX`, y=`total time`, colour = `Cont/OX`, fill=`Cont/OX`))+
+  geom_jitter(alpha=1, width = .2)+
+  geom_boxplot(alpha=0.8,outlier.shape = NA)+
+  scale_fill_manual(values = c("#A4A4A5", "#3A53A4"))+
+  scale_color_manual(values = c("#A4A4A5", "#3A53A4"))+
+  facet_wrap( ~ temp, ncol = 2)+
+  geom_boxplot(color = "black", fill = NA, fatten = 4, outlier.shape = NA)+
+  
+  labs(title="acute effects on allodynia",x="rat", y = "foreFootTime")+
+  stat_n_text(
+    y.pos = 0, #we can specify where in y axis the samle size should be denoted
+    color = "black", #choose any color
+    text.box = F, #draws a box outside the n
+    size = 3
+  )+
+  theme_classic()
+########################### analyses/modeling
+########################### saving data
+########################### saving figures
+setwd("~/Dropbox-GaTech/CoS/BioSci/BioSci-Housley_Lab/04-papers/acute_ox/acute_oxaliplatin_encoding/")
+ggsave(temp_Fig, file = "temp_Fig.pdf", width = 12, height = 10, units = "cm", path = "figures")
 ########################### clean up
