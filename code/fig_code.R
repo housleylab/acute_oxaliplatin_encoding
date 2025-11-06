@@ -253,7 +253,7 @@ ggsave(fig_4i, file = "fig_4i.pdf", width = 15, height = 15, units = "cm", path 
 
 
 
-########################### Figure 7 muscle ###########################
+########################### Figure 7a ###########################
 ########################### description
 ########################### load dependencies
 ########################### custom functions
@@ -320,4 +320,69 @@ muscleFig<-ggplot(df_tidy_mean, aes(x=recTime, y=mean, color = sf_category)) +
 ########################### saving figures
 setwd("~/Dropbox-GaTech/CoS/BioSci/BioSci-Housley_Lab/04-papers/acute_ox/acute_oxaliplatin_encoding/")
 ggsave(muscleFig, file = "muscle_population_code_Fig_split.pdf", width = 18, height = 18, units = "cm", path = "figures")
+########################### clean up
+########################### Figure 7b ###########################
+########################### description
+########################### load dependencies
+########################### custom functions
+sourceDirectory("code/functions/")
+########################### load data
+setwd("data/cutaneous_spike_times/")
+
+########################### data wrangling
+start.time <- Sys.time()
+
+filelist = list.files(pattern = ".*.txt")
+data = lapply(filelist, read.table, header = TRUE, sep = "\t") ## read in all files
+
+end.time <- Sys.time()
+time.taken <- end.time - start.time
+time.taken
+gc()
+# names(data) <- gsub("\\.txt$", "", fileNames)
+names(data) <- stringr::str_replace(filelist, pattern = ".txt", replacement = "")   ## rename the list elements to reflect the Neuron names
+
+lapply(seq_along(1:length(data)),function(x) names(data[[x]])<<-names(vars_rename(names(data[[x]]), ## rename the var list
+                                                                                  recTime = contains("Time"), 
+                                                                                  Spikes = starts_with("X1.")
+                                                                                  
+))) 
+### convert list of data frames to single data frame
+df_tidy<-bind_rows(data, .id = "source_df")
+### generate index column for detecting SF+ and SF-
+df_tidy<-df_tidy %>%
+  mutate(
+    sf_category = case_when(
+      str_detect(source_df, "SF-") ~ "sf_neg",
+      str_detect(source_df, "SF+") ~ "sf_pos",
+      str_detect(source_df, "cont") ~ "control",
+      TRUE ~ "noneDetected" # Default case if neither is found
+    )
+  )
+### need some smoothing for cutaneous data
+df_tidy<-arrange(df_tidy,source_df,recTime) %>%
+  mutate(ma2=rollapply(Spikes,2,mean,align='right',fill=NA))
+### summaries
+df_tidy_mean <- df_tidy %>%
+  filter(!is.na(recTime)) %>%
+  group_by(recTime,sf_category) %>%
+  summarise(n = n(),
+            mean = mean(ma2),
+            median = median(ma2),
+            sd = sd(ma2)) %>%
+  mutate(sem = sd / sqrt(n - 1),
+         CI_lower = mean + qt((1-0.95)/2, n - 1) * sem,
+         CI_upper = mean - qt((1-0.95)/2, n - 1) * sem)
+########################### quick visualization
+cutaneousFig<-df_tidy_mean %>% filter( sf_category == "control" & n == 45 | sf_category == "sf_pos" | sf_category == "sf_neg") %>%
+  ggplot( aes(x=recTime, y=mean, color = sf_category)) +
+  geom_line(aes(x=recTime, y=mean,color = sf_category)) +
+  geom_ribbon(aes(ymin=CI_lower,ymax=CI_upper, fill=sf_category),color="grey70",alpha=0.4)+
+  theme_classic() +
+  facet_wrap(~ sf_category, nrow = 3)
+########################### analyses/modeling
+########################### saving data
+########################### saving figures
+setwd("~/Dropbox-GaTech/CoS/BioSci/BioSci-Housley_Lab/04-papers/acute_ox/acute_oxaliplatin_encoding/")
+ggsave(cutaneousFig, file = "cutaneous_population_code_Fig_split.pdf", width = 18, height = 18, units = "cm", path = "figures")
 ########################### clean up
