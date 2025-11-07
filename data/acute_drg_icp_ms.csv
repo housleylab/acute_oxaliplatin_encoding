@@ -1,0 +1,15 @@
+sampleName,blindedName,concentration,concentration_num,location,replicate,ppm,avg,calibration
+r248,1,1000uM,1000,L5,,212.916,276.641,yes
+r248,2,1000uM,1000,L5,,340.366,,yes
+r248,3,100uM,100,L5,,46.634,64.9545,yes
+r248,4,100uM,100,L5,,83.275,,yes
+r248,5,10uM,10,L5,,2.961,5.703,yes
+r248,6,10uM,10,L5,,8.445,,yes
+r248,7,1uM,1,L5,,0.102,0.131,yes
+r248,8,1uM,1,L5,,0.16,,yes
+r245,9,30mg,,L5,yes,10.34,8.3465,no
+r245,10,30mg,,L5,yes,6.353,,no
+r246,11,30mg,,L5,yes,4.418,5.9895,no
+r246,12,30mg,,L5,yes,7.561,,no
+r247,13,30mg,,L5,yes,0.008,0.0155,no
+r247,14,30mg,,L5,yes,0.023,,no

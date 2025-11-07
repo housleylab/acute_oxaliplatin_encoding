@@ -475,3 +475,116 @@ temp_Fig<-df %>%
 setwd("~/Dropbox-GaTech/CoS/BioSci/BioSci-Housley_Lab/04-papers/acute_ox/acute_oxaliplatin_encoding/")
 ggsave(temp_Fig, file = "temp_Fig.pdf", width = 12, height = 10, units = "cm", path = "figures")
 ########################### clean up
+
+########################### Figure 9 ###########################
+########################### description
+########################### load dependencies
+########################### custom functions
+summarySE <- function(data=NULL, measurevar, groupvars=NULL, na.rm=FALSE,
+                      conf.interval=.95, .drop=TRUE) {
+  library(plyr)
+  
+  # New version of length which can handle NA's: if na.rm==T, don't count them
+  length2 <- function (x, na.rm=FALSE) {
+    if (na.rm) sum(!is.na(x))
+    else       length(x)
+  }
+  
+  # This does the summary. For each group's data frame, return a vector with
+  # N, mean, and sd
+  datac <- ddply(data, groupvars, .drop=.drop,
+                 .fun = function(xx, col) {
+                   c(N    = length2(xx[[col]], na.rm=na.rm),
+                     mean = mean   (xx[[col]], na.rm=na.rm),
+                     sd   = sd     (xx[[col]], na.rm=na.rm)
+                   )
+                 },
+                 measurevar
+  )
+  
+  # Rename the "mean" column    
+  datac <- rename(datac, c("mean" = measurevar))
+  
+  datac$se <- datac$sd / sqrt(datac$N)  # Calculate standard error of the mean
+  
+  # Confidence interval multiplier for standard error
+  # Calculate t-statistic for confidence interval: 
+  # e.g., if conf.interval is .95, use .975 (above/below), and use df=N-1
+  ciMult <- qt(conf.interval/2 + .5, datac$N-1)
+  datac$ci <- datac$se * ciMult
+  
+  return(datac)
+}
+########################### load data
+df <- read_excel("data/acute_drg_icp_ms.xlsx",
+                 na = "NA")
+df_short <-df %>%
+  filter(calibration == "yes") %>%
+  select(concentration_num, ppm)
+
+########################### data wrangling
+
+
+df_observed<-df %>% 
+  group_by(concentration) %>%
+  filter(calibration == "no") %>%
+  dplyr::summarise(mean.ppm = mean(ppm, na.rm = TRUE),
+            sd.ppm = sd(ppm, na.rm = TRUE),
+            n.ppm = n()) %>%
+  mutate(se.ppm = sd.ppm / sqrt(n.ppm),
+         lower.ci.ppm = mean.ppm - qt(1 - (0.05 / 2), n.ppm - 1) * se.ppm,
+         upper.ci.ppm = mean.ppm + qt(1 - (0.05 / 2), n.ppm - 1) * se.ppm)
+
+df_short <- summarySE(df_short, measurevar="ppm", groupvars=c("concentration_num"))
+detach("package:plyr", unload = TRUE)
+
+
+########################### quick visualization
+pd <- position_dodge(0.1) # move them .05 to the left and right
+
+standardCurve_pt_ppm_fig<-ggplot(df_short, aes(x=concentration_num, y=ppm)) + 
+  geom_errorbar(aes(ymin=ppm-se, ymax=ppm+se), width=.1, position=pd) +
+  geom_line(position=pd) +
+  geom_point(position=pd)+
+  # scale_y_continuous(
+  #   trans = "log2")+
+  scale_y_log10(limits = c(0.001,1e5))+
+  scale_x_continuous(
+    trans = "log10")+
+  geom_rect(data=df_observed, aes(xmin=2,
+                                  xmax=16,
+                                  ymin=lower.ci.ppm, 
+                                  ymax=upper.ci.ppm),
+            color="grey20",
+            alpha=0.5,
+            inherit.aes = FALSE)+
+  theme_classic()
+  # annotate('text', x = 1.6, y = (df_observed$mean.ppm/2),
+  #          label = 'Observed (ppm)', 
+  #          size = 4, 
+  #          angle='90')+
+  # annotate('text', x = 6, y = (df_observed$lower.ci.ppm-.15),
+  #          label = 'Predicted \n Concentration \n Range (2-16uM)', 
+  #          size = 4
+  # )
+
+observed_pt_ppm_fig<-df %>%
+  group_by(concentration) %>%
+  filter(calibration == "no") %>%
+  ggplot(aes(x=as.factor(concentration), y=ppm, color=as.factor(concentration), fill=as.factor(concentration))) +
+  geom_boxplot(alpha=0.4)+
+  # geom_line(aes(group = experiment), size=0.2, color='black', alpha=0.6, linetype=2)+
+  geom_point(aes(fill=concentration,group=sampleName),size=1,shape=21)+
+  # facet_wrap(vars(affType))+
+  scale_color_manual(values=c("#B6B5B5", "blue", "red", "#609B53"))+
+  scale_fill_manual(values=c("#B6B5B5", "blue", "red", "#609B53"))+
+  theme_classic()+
+  scale_y_log10(limits = c(0.001,1e5))
+########################### analyses/modeling
+########################### saving data
+########################### saving figures
+setwd("~/Dropbox-GaTech/CoS/BioSci/BioSci-Housley_Lab/04-papers/acute_ox/acute_oxaliplatin_encoding/")
+ggsave(standardCurve_pt_ppm_fig, file = "standardCurve_pt_ppm_fig.pdf", width = 10, height = 12, units = "cm", path = "figures")
+ggsave(observed_pt_ppm_fig, file = "observed_pt_ppm_fig.pdf", width = 10, height = 12, units = "cm", path = "figures")
+
+########################### clean up
