@@ -415,7 +415,7 @@ df_sum<-df %>%
 ########################### quick visualization
 stepping_Fig<-df %>% 
   ggplot(aes(x=treat, y=slips_per_step, colour = treat, fill=treat))+
-  geom_jitter(alpha=1, width = .2)+
+  geom_jitter(alpha=1, width = .1)+
   geom_boxplot(alpha=0.8,outlier.shape = NA)+
   geom_boxplot(color = "black", fill = NA, fatten = 4, outlier.shape = NA)+
   geom_line(aes(group=rat_run))+
