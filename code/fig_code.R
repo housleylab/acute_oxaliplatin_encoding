@@ -404,8 +404,8 @@ df <- read_excel("data/Copy of Acute ladder rung test.xlsx",
 ########################### data wrangling
 df$treat<-as.factor(df$treat)
 df$rat<-as.factor(df$rat)
-df %>% 
-  group_by(treat) %>%
+df_sum<-df %>% 
+  group_by(treat,rat) %>%
   # filter(cutMusc == "cut") %>%  ### change from 'cut' to 'muscle'
   # filter(spontType == 1 | spontType == 2) %>%
   summarise(mean = mean(slips_total/n_steps, na.rm=T),
@@ -418,6 +418,7 @@ stepping_Fig<-df %>%
   geom_jitter(alpha=1, width = .2)+
   geom_boxplot(alpha=0.8,outlier.shape = NA)+
   geom_boxplot(color = "black", fill = NA, fatten = 4, outlier.shape = NA)+
+  geom_line(aes(group=rat_run))+
   scale_fill_manual(values = c("#A4A4A5", "#3A53A4"))+
   scale_color_manual(values = c("#A4A4A5", "#3A53A4"))+
   labs(title="acute effects on step accuracy",x="rat", y = "errors/step")+
@@ -428,6 +429,7 @@ stepping_Fig<-df %>%
     size = 3
   )+
   theme_classic()
+
 ########################### analyses/modeling
 ########################### saving data
 ########################### saving figures
