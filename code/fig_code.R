@@ -458,6 +458,7 @@ temp_Fig<-df %>%
   ggplot(aes(x=`Cont/OX`, y=`total time`, colour = `Cont/OX`, fill=`Cont/OX`))+
   geom_jitter(alpha=1, width = .2)+
   geom_boxplot(alpha=0.8,outlier.shape = NA)+
+  geom_line(aes(group=animalID))+
   scale_fill_manual(values = c("#A4A4A5", "#3A53A4"))+
   scale_color_manual(values = c("#A4A4A5", "#3A53A4"))+
   facet_wrap( ~ temp, ncol = 2)+
