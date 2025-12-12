@@ -451,19 +451,24 @@ ggsave(stepping_Fig, file = "stepping_Fig_rat.pdf", width = 8, height = 10, unit
 df <- read_excel("data/temp_behavior.xlsx",
                  na = "NA")
 ########################### data wrangling
-df$`Cont/OX`<-as.factor(df$`Cont/OX`)
+df$control_OX<-as.factor(df$control_OX)
 df$temp<-as.factor(df$temp)
 df$file_name_date<-as.factor(df$file_name_date)
 df$fil_ID_number<-as.factor(df$fil_ID_number)
+
+df_min <- df %>% 
+  filter(!is.na(time_diff)) %>%
+  select(animalID, temp, time_diff, control_OX)
+
 ########################### quick visualization
-temp_Fig<-df %>% 
-  ggplot(aes(x=`Cont/OX`, y=`total time`, colour = `Cont/OX`, fill=`Cont/OX`))+
-  geom_jitter(alpha=1, width = .2)+
+temp_Fig<-df_min %>% 
+  ggplot(aes(x=control_OX, y=time_diff, colour = control_OX, fill=control_OX))+
+  geom_point(aes(group=animalID ))+
   geom_boxplot(alpha=0.8,outlier.shape = NA)+
   geom_line(aes(group=animalID))+
   scale_fill_manual(values = c("#A4A4A5", "#3A53A4"))+
   scale_color_manual(values = c("#A4A4A5", "#3A53A4"))+
-  facet_wrap( ~ temp, ncol = 2)+
+  # facet_wrap( ~ temp, ncol = 2)+
   geom_boxplot(color = "black", fill = NA, fatten = 4, outlier.shape = NA)+
   
   labs(title="acute effects on allodynia",x="rat", y = "foreFootTime")+
@@ -478,7 +483,7 @@ temp_Fig<-df %>%
 ########################### saving data
 ########################### saving figures
 setwd("~/Dropbox-GaTech/CoS/BioSci/BioSci-Housley_Lab/04-papers/acute_ox/acute_oxaliplatin_encoding/")
-ggsave(temp_Fig, file = "temp_Fig.pdf", width = 12, height = 10, units = "cm", path = "figures")
+ggsave(temp_Fig, file = "temp_Fig.pdf", width = 8, height = 10, units = "cm", path = "figures")
 ########################### clean up
 
 ########################### Figure 9 ###########################
