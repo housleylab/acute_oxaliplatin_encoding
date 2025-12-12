@@ -415,12 +415,14 @@ df_sum<-df %>%
 ########################### quick visualization
 stepping_Fig<-df %>% 
   ggplot(aes(x=treat, y=slips_per_step, colour = treat, fill=treat))+
-  geom_jitter(alpha=1, width = .1)+
+  # geom_jitter(alpha=1, width = .1)+
   geom_boxplot(alpha=0.8,outlier.shape = NA)+
   geom_boxplot(color = "black", fill = NA, fatten = 4, outlier.shape = NA)+
-  geom_line(aes(group=rat_run))+
-  scale_fill_manual(values = c("#A4A4A5", "#3A53A4"))+
-  scale_color_manual(values = c("#A4A4A5", "#3A53A4"))+
+  # scale_fill_manual(values = c("#A4A4A5", "#3A53A4"))+
+  # scale_color_manual(values = c("#A4A4A5", "#3A53A4"))+
+  geom_line(aes(group=rat_run, col = rat))+
+  geom_point(aes(group=rat_run, col = rat))+
+  
   labs(title="acute effects on step accuracy",x="rat", y = "errors/step")+
   stat_n_text(
     y.pos = 0, #we can specify where in y axis the samle size should be denoted
@@ -434,7 +436,7 @@ stepping_Fig<-df %>%
 ########################### saving data
 ########################### saving figures
 setwd("~/Dropbox-GaTech/CoS/BioSci/BioSci-Housley_Lab/04-papers/acute_ox/acute_oxaliplatin_encoding/")
-ggsave(stepping_Fig, file = "stepping_Fig.pdf", width = 8, height = 10, units = "cm", path = "figures")
+ggsave(stepping_Fig, file = "stepping_Fig_rat.pdf", width = 8, height = 10, units = "cm", path = "figures")
 ########################### clean up
 
 
